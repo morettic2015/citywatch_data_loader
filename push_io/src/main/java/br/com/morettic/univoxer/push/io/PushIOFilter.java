@@ -37,10 +37,7 @@ import javapns.devices.exceptions.InvalidDeviceTokenFormatException;
 @WebFilter(filterName = "SmartProxyFilter",
         urlPatterns = {"/push.io"},
         dispatcherTypes = {
-            DispatcherType.FORWARD,
-            DispatcherType.ERROR,
-            DispatcherType.REQUEST,
-            DispatcherType.INCLUDE})
+            DispatcherType.REQUEST})
 public class PushIOFilter implements Filter {
 
     private static Logger logger = Logger.getAnonymousLogger();
@@ -58,14 +55,15 @@ public class PushIOFilter implements Filter {
             throws IOException, ServletException {
 
         HashSet<PushHash> lPushs = (HashSet<PushHash>) PushCatalog.getPushList();
-
+        String key = request.getParameter("key");
+        int mKey = Integer.parseInt(key);
         for (PushHash pushHash : lPushs) {
             //Must send push now!
             if (pushHash.getAction().equals(Action.CALL)) {
                 DeviceType dv = pushHash.getDeviceType();
                 switch (dv) {
                     case ANDROID:
-                        pushAndroid(pushHash);
+                        pushAndroid(pushHash,mKey);
                         break;
                     case IOS:
                         pushIos(pushHash, request.getServletContext());
@@ -77,14 +75,14 @@ public class PushIOFilter implements Filter {
                 }
             }
         }
-
+//chain.doFilter(request, response);
     }
 
-    private boolean pushAndroid(PushHash ph) {
-        JsonObject js = PushAndroid.sendNotification(ph.getAction().name(), ph.getDeviceId());
+    public static boolean pushAndroid(PushHash ph,int key) {
+        JsonObject js = PushAndroid.sendNotification(ph.getAction().name(), ph.getDeviceId(),key);
 
         //@todo verificar o tipo da ação......
-        if (js.get("status").equals(HttpURLConnection.HTTP_CREATED)) {
+        if (js.get("status").getAsInt()==(HttpURLConnection.HTTP_OK)) {
             PushCatalog.removePush(ph);
             return true;
         }
@@ -118,7 +116,7 @@ public class PushIOFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
-        logger.log(Level.WARNING, "EXECUTANDO REQUISI\u00c7\u00c2O DE REGISTRO{0}", new Date().getTime());
+        //logger.log(Level.WARNING, "EXECUTANDO REQUISI\u00c7\u00c2O DE REGISTRO{0}", new Date().getTime());
         chain.doFilter(request, response);
         logger.log(Level.WARNING, "INICIO DO POS PROCESSAMENTO{0}", new Date().getTime());
         doAfterProcessing(request, response);

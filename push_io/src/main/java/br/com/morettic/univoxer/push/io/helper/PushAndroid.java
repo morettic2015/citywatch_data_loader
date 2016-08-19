@@ -20,38 +20,26 @@ import java.util.Base64;
  */
 public class PushAndroid {
 
+    private static final String API_KEY_CW = "AIzaSyB2JdXERI5EHeoRzTCsJWwaftzMr-7jFHM";
     private static final String API_KEY = "AIzaSyA5k_C6HkUcBdBPC8-9iU1hAZOZ-G6kmys";
     private static final String GCM_URL = "https://fcm.googleapis.com/fcm/send";
 
-    
     /**
-     
-       public function android($data, $reg_id) {
-        $url = 'https://android.googleapis.com/gcm/send';
-        $message = array(
-            'title' => $data['mtitle'],
-            'message' => $data['mdesc'],
-            'subtitle' => '',
-            'tickerText' => '',
-            'msgcnt' => 1,
-            'vibrate' => 1
-        );
-
-        $headers = array(
-            'Authorization: key=' . self::$API_ACCESS_KEY,
-            'Content-Type: application/json'
-        );
-
-        $fields = array(
-            'registration_ids' => array($reg_id),
-            'data' => $message,
-        );
-
-        return $this->useCurl($url, $headers, json_encode($fields));
-    }
+     *
+     * public function android($data, $reg_id) { $url =
+     * 'https://android.googleapis.com/gcm/send'; $message = array( 'title' =>
+     * $data['mtitle'], 'message' => $data['mdesc'], 'subtitle' => '',
+     * 'tickerText' => '', 'msgcnt' => 1, 'vibrate' => 1 );
+     *
+     * $headers = array( 'Authorization: key=' . self::$API_ACCESS_KEY,
+     * 'Content-Type: application/json' );
+     *
+     * $fields = array( 'registration_ids' => array($reg_id), 'data' =>
+     * $message, );
+     *
+     * return $this->useCurl($url, $headers, json_encode($fields)); }
      */
-    
-    public static JsonObject sendNotification(String messageBody, String deviceId) {
+    public static JsonObject sendNotification(String messageBody, String deviceId, int keyNum) {
         JsonObject js = new JsonObject();
         try {
 
@@ -62,18 +50,13 @@ public class PushAndroid {
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
 
-            String apiKey = API_KEY;
-
+            String apiKey = keyNum > 0 ? API_KEY_CW : API_KEY;
+            String notfnStr;
+            String title = keyNum > 0? "CITY WATCH [morettic.com.br]":"UNIVOXER.COM";
             String credentials = "key=" + apiKey;
-            //String basicAuth = "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes());
-
-            String basicAuth = "Basic " + new String(Base64.getEncoder().encode(credentials.getBytes()));
-
-            conn.setRequestProperty("Authorization", basicAuth);
-
-            String notfnStr = "{\"body\": \"Univoxer.com\", \"title\": \"WAKE_UP\"}";
+            conn.setRequestProperty("Authorization", credentials);
+            notfnStr = "{\"body\": \""+messageBody+"\", \"title\": \"" + title + "\"}";
             String dataStr = "{\"key1\": \"value1\", \"key2\": \"value2\"}";
-
             String bodyStr = "{\"priority\": \"high\", \"to\": \"" + deviceId + "\",\"notification\": " + notfnStr + ", \"data\": " + dataStr + "}";
 
             OutputStream os = conn.getOutputStream();
@@ -85,17 +68,18 @@ public class PushAndroid {
 
             StringBuilder outputB = new StringBuilder();
             String output;
-           
+
             while ((output = br.readLine()) != null) {
                 outputB.append(output);
             }
             js.addProperty("response", outputB.toString());
             conn.disconnect();
         } catch (Exception e) {
+            e.printStackTrace();
             Logger.logMsg(Logger.ERROR, e.toString());
-            js.addProperty("error",e.getMessage());
-            js.addProperty("status",500);
-        } finally{
+            js.addProperty("error", e.getMessage());
+            js.addProperty("status", 500);
+        } finally {
             return js;
         }
     }
