@@ -60,7 +60,7 @@ public class WatchManagerServlet extends HttpServlet {
         Trigger trigger = TriggerBuilder.newTrigger()
                 .withIdentity("PUSH_JOB", "group1")
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule()
-                        .withIntervalInSeconds(180).repeatForever())
+                        .withIntervalInSeconds(10800).repeatForever())//Acada 3 horas manda um push
                 .build();
 
         // schedule it

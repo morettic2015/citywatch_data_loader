@@ -37,6 +37,8 @@ public class TimerTask implements Job {
                                             "Alertas & News",
                                             "Compartilhe o que sua empresa faz. Registre aqui é de graça!",
                                             "Denuncie a corrupção em sua cidade!",
+                                            "Tell a friend!",
+                                            "Bem vindo ao grupo de cidadãos inteligentes!",
                                             "Anuncie em nosso mapa! Consulte nos!"};
     
     private static String URL = "https://gaeloginendpoint.appspot.com/infosegcontroller.exec?action=20&msg=%";
