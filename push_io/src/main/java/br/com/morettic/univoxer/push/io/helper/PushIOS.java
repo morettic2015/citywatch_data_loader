@@ -53,10 +53,10 @@ public class PushIOS {
         payload.addSound("default");
         payload.addCustomDictionary("action", action);
 
-        String tokenDevice = token.replaceAll("\\s+", "").replace("<", "").replace(">", "");
-        BasicDevice device = new BasicDevice(tokenDevice);
+       String tokenDevice = token.replaceAll("\\s+", "").replace("<", "").replace(">", "");
+       BasicDevice device = new BasicDevice(tokenDevice);
 
-        List<PushedNotification> pushNotificationsList = Push.payload(payload, fullPath, password, true, device.getToken());
+        List<PushedNotification> pushNotificationsList = Push.payload(payload, fullPath, password, false, device.getToken());
 
         for (PushedNotification pushNotificationPojo : pushNotificationsList) {
             if (pushNotificationPojo.isSuccessful()) {
@@ -90,8 +90,8 @@ public class PushIOS {
             }
         }
         pushNotificationsList.clear();
-        device = null;
-        tokenDevice = null;
+        //device = null;
+       // tokenDevice = null;
 
         return returnVal;
     }
